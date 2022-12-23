@@ -7,6 +7,8 @@ It automatically downloads all submissions that you need to grade, shows them to
 If the result is different, then you may adjust the grade and add a comment and *writes everything to a file*.
 
 ## Requirements 
+linux
 docker 
 python3
-``pip3 install canvas rich``
+unzip
+``pip3 install codegrade rich requests``
