@@ -58,7 +58,6 @@ with codegrade.login(
 
     assignment = assignments[id]
     subname = assignment.name.split(" ")[1]
-    input(subname)
     # Get submissions assigned to grade for this assignment
     submissions = client.assignment.get_all_submissions(assignment_id=assignment.id)
 
