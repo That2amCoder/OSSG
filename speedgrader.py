@@ -47,7 +47,7 @@ with codegrade.login(
     print("Logged in as", client.user.get().name)
     # Get available ASSIGNMENTS
     assignments = client.assignment.get_all()
-    print("Available assignments:")
+    print("Available assignments (From recent to oldest): ")
     x = 0
     for assignment in assignments:
         print("["+str(x)+"] "+assignment.name)
@@ -63,14 +63,25 @@ with codegrade.login(
     # Get submissions assigned to grade for this assignment
     submissions = client.assignment.get_all_submissions(assignment_id=assignment.id)
 
+    print("Enter function: ")
+    print("[1] - Grade all assigned submissions")
+    print("[2] - Search for a specific student")
+    if input("Enter the number of the function you want to use: ") == "2":
+        search = input("Enter the vu-net id of the student you want to grade: ")
+        submissions = [x for x in submissions if search in x.user.username]
+    else:
+        try:
+            submissions = [x for x in submissions if x.assignee.name == client.user.get().name]
+        except:
+            print("You are not assigned to grade any submissions for this assignment. Bye!")
+            exit()
+
     print("Submissions to grade: ", len(submissions))
     for submission in submissions:
         if submission is None:
             continue
         # Clear the terminal
         os.system("cls" if os.name == "nt" else "clear")
-        if not submission.assignee.name == client.user.get().name:
-            continue
             
         print("Submission by", submission.user.name)
         # Download the submission
