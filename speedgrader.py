@@ -8,6 +8,13 @@ def write_into_temp(content):
     with open("temp.txt", "a") as f:
         f.write(content)
 
+def download_asg_setup():
+    ghrepo = input("Enter the github repo of the framework: ")
+    os.system("git clone " + ghrepo + " ./sandbox")
+    # Copy the "./sandbox/repo/framework" folder to "./sandbox/framework"
+    os.system("cp -r ./sandbox/" + os.listdir("./sandbox")[0] + "/framework ./sandbox/framework")
+    os.system("rm -rf ./sandbox/" + os.listdir("./sandbox")[0])
+
 print("NOTE: If you are using this script post codegrade disaster")
 print("Then you need to use your username with a (1) at the end")
 print("E.g if your username is 'johndoe', then your username is 'johndoe (1)'")
@@ -22,11 +29,7 @@ if not os.path.exists("sandbox"):
     os.mkdir("sandbox")
     input("Press enter to continue")
     open("temp.txt", "w").close()
-    ghrepo = input("Enter the github repo of the framework: ")
-    os.system("git clone " + ghrepo + " ./sandbox")
-    # Copy the "./sandbox/repo/framework" folder to "./sandbox/framework"
-    os.system("cp -r ./sandbox/" + os.listdir("./sandbox")[0] + "/framework ./sandbox/framework")
-    os.system("rm -rf ./sandbox/" + os.listdir("./sandbox")[0])
+    download_asg_setup()
     print("Done!")
 
 
@@ -45,6 +48,13 @@ with codegrade.login(
     tenant="Vrije Universiteit"
 ) as client:
     print("Logged in as", client.user.get().name)
+
+    print("Do you want to restart the sandbox? (y/n):")
+    if input("Enter y or n: ") == "y":
+        os.system("rm -rf ./sandbox")
+        download_asg_setup()
+        print("Done!")
+    
     # Get available ASSIGNMENTS
     assignments = client.assignment.get_all()
     print("Available assignments (From recent to oldest): ")
