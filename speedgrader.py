@@ -86,6 +86,7 @@ with codegrade.login(
     print("Do you want to change assignment? (y/n):")
     if input("Enter y or n: ") == "y":
         os.system("rm -rf ./sandbox")
+        os.mkdir("sandbox")
         download_asg_setup()
         print("Done!")
     
