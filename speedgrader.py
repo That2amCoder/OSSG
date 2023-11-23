@@ -13,6 +13,12 @@ def write_to_csv(vunetid, name, codegrade_grade, new_grade, comment):
         writer = csv.writer(f)
         writer.writerow([vunetid, name, codegrade_grade, new_grade, comment])
 
+# Returns a list of vunetids
+def read_from_csv():
+    with open("grades.csv", "r") as f:
+        reader = csv.reader(f)
+        return [row[0] for row in reader]
+
 
 def download_asg_setup():
     ghrepo = input("Enter the github repo of the framework: ")
@@ -128,10 +134,22 @@ with codegrade.login(
 
     autograde = option == "3"
     print("Submissions to grade: ", len(submissions))
-    # Initialise the csv file
-    with open("grades.csv", "w") as f:
-        writer = csv.writer(f)
-        writer.writerow(["VUNETID", "NAME", "CODEGRADE GRADE", "NEW GRADE", "COMMENT"])
+    vunetids = []
+    # If grades.csv exists, then read the vunetids from it
+    # Otherwise, create a new csv file
+    if os.path.exists("grades.csv"):
+        print("Resuming from previous session...")
+        vunetids = read_from_csv()
+    else:
+        vunetids = []
+            # Initialise the csv file
+        with open("grades.csv", "w") as f:
+            writer = csv.writer(f)
+            writer.writerow(["VUNETID", "NAME", "CODEGRADE GRADE", "NEW GRADE", "COMMENT"])
+    
+    # Filter out the submissions that have already been graded
+    submissions = [x for x in submissions if x.user.username not in vunetids]
+
 
     for submission in submissions:
         if submission is None:
@@ -192,7 +210,10 @@ with codegrade.login(
             # Run "make docker-check" and get the output
             output = subprocess.check_output(["make", "docker-check"], cwd=dirpath, universal_newlines=True)
             grade = "NA"
-            grade = re.search("Executed all tests, got (.*)\/", output).group(1)
+            try:
+                grade = re.search("Executed all tests, got (.*)\/", output).group(1)
+            except:
+                print("ERROR: Could not find grade in output")
             # Remove whitespace
             grade = grade.replace(" ", "")
             try:
