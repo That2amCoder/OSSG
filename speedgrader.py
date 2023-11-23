@@ -119,6 +119,7 @@ with codegrade.login(
     elif option == "1":
         try:
             # This assumes everyone is assigned to a grader
+            submissions = [x for x in submissions if x.assignee]
             submissions = [x for x in submissions if x.assignee.name == client.user.get().name]
         except:
             print("You are not assigned to grade any submissions for this assignment. Bye!")
@@ -166,7 +167,8 @@ with codegrade.login(
         if not any(x.endswith(".c") for x in dirs):
             # Get the .tar.gz file name
             tarfile = [x for x in dirs if x.endswith(".tar.gz")][0]
-            dirs += os.listdir("./sandbox/"+strid+"/"+tarfile+"/" +dirs[0])
+            dir += tarfile + "/"
+            dirs = os.listdir(dir)
 
         # Get the directory that contains the assignment .c file
         dirpath = dir
@@ -188,6 +190,7 @@ with codegrade.login(
 
             # Run "make docker-check" and get the output
             output = subprocess.check_output(["make", "docker-check"], cwd=dirpath, universal_newlines=True)
+            grade = "NA"
             grade = re.search("Executed all tests, got (.*)\/", output).group(1)
             # Remove whitespace
             grade = grade.replace(" ", "")
@@ -224,7 +227,7 @@ with codegrade.login(
 
                 rich.print("DISCREPANCY!\n [red] CODEGRADE: ", submission.grade, " | [green] LOCALGRADE: ", grade)
 
-            grade = "NA"
+            
             newgrade = "NA"
             newcomment = ""
             if discrepancy:
